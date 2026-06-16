@@ -1,165 +1,410 @@
 <!DOCTYPE html>
-<html lang="zh-HK">
+<html lang="zh-HK" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>個人收支平衡表</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; padding: 20px; color: #333; }
-  h1 { text-align: center; color: #2c3e50; margin-bottom: 20px; font-size: 1.5em; }
-  .container { max-width: 700px; margin: 0 auto; }
-  .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-  .card h2 { font-size: 1em; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid; }
-  .income h2 { color: #27ae60; border-color: #27ae60; }
-  .expense h2 { color: #e74c3c; border-color: #e74c3c; }
-  .row { display: flex; align-items: center; margin-bottom: 8px; gap: 8px; }
-  .row label { flex: 1; font-size: 0.9em; color: #555; }
-  .row input[type=text] { flex: 1.5; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9em; }
-  .row input[type=number] { flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9em; }
-  .btn-add { background: none; border: 1px dashed #aaa; border-radius: 6px; padding: 6px 12px; cursor: pointer; color: #888; font-size: 0.85em; width: 100%; margin-top: 4px; }
-  .btn-add:hover { background: #f5f5f5; }
-  .btn-del { background: none; border: none; color: #ccc; cursor: pointer; font-size: 1em; padding: 0 4px; }
-  .btn-del:hover { color: #e74c3c; }
-  .summary { background: #2c3e50; color: white; border-radius: 12px; padding: 20px; }
-  .summary h2 { color: white; border-color: #fff; border-bottom: 2px solid rgba(255,255,255,0.3); padding-bottom: 8px; margin-bottom: 14px; font-size: 1em; }
-  .sum-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.95em; }
-  .sum-row.total { font-size: 1.2em; font-weight: bold; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.3); }
-  .positive { color: #2ecc71; }
-  .negative { color: #e74c3c; }
-  .neutral { color: #f1c40f; }
-  .btn-calc { display: block; width: 100%; padding: 12px; background: #3498db; color: white; border: none; border-radius: 8px; font-size: 1em; cursor: pointer; margin-top: 16px; border-radius: 25px; }
-  .btn-calc:hover { background: #2980b9; }
-  select { padding: 6px 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.85em; color: #555; }
+:root,[data-theme="light"]{
+  --bg:#f7f6f2;--surface:#f9f8f5;--surface2:#fbfbf9;--offset:#f0ede8;
+  --divider:#dcd9d5;--border:#d4d1ca;--text:#28251d;--muted:#7a7974;
+  --faint:#bab9b4;--primary:#01696f;--primary-h:#0c4e54;
+  --green:#437a22;--green-bg:#d4dfcc;--red:#a13544;--red-bg:#f3d7db;
+  --gold:#d19900;--gold-bg:#f5edcc;
+  --shadow:0 2px 10px rgba(0,0,0,0.08);--t:180ms cubic-bezier(.16,1,.3,1);
+  --r:0.75rem;--font:'Noto Sans HK','PingFang HK',sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#171614;--surface:#1c1b19;--surface2:#201f1d;--offset:#252422;
+  --divider:#262523;--border:#393836;--text:#cdccca;--muted:#797876;
+  --faint:#5a5957;--primary:#4f98a3;--primary-h:#227f8b;
+  --green:#6daa45;--green-bg:#2a3a22;--red:#dd6974;--red-bg:#3a2225;
+  --gold:#e8af34;--gold-bg:#3a3020;
+  --shadow:0 2px 10px rgba(0,0,0,0.3);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-font-smoothing:antialiased;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100dvh;}
+button{cursor:pointer;border:none;background:none;font:inherit;color:inherit;}
+input,select{font:inherit;color:inherit;}
+
+.header{background:var(--surface);border-bottom:1px solid var(--divider);padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:var(--shadow);}
+.logo{display:flex;align-items:center;gap:.6rem;font-size:1.05rem;font-weight:700;}
+.logo svg{color:var(--primary);}
+.hdr-right{display:flex;align-items:center;gap:.6rem;}
+.icon-btn{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--offset);border:1px solid var(--border);color:var(--muted);}
+.sync-badge{display:flex;align-items:center;gap:6px;padding:.2rem .75rem;border-radius:2rem;font-size:.75rem;font-weight:600;background:var(--offset);border:1px solid var(--border);}
+.sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.sync-dot.connecting{background:var(--gold);animation:pulse 1.2s infinite;}
+.sync-dot.live{background:var(--green);}
+.sync-dot.offline{background:var(--red);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+.month-bar{background:var(--surface);border-bottom:1px solid var(--divider);padding:.6rem 1.5rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;}
+.month-bar label{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+.sel{padding:.4rem .7rem;border:1px solid var(--border);border-radius:.5rem;background:var(--surface2);font-size:.85rem;font-family:var(--font);}
+
+.main{max-width:760px;margin:0 auto;padding:1.5rem 1rem;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem 1.5rem;margin-bottom:1rem;box-shadow:var(--shadow);}
+.card-title{display:flex;align-items:center;gap:.5rem;font-size:.95rem;font-weight:700;padding-bottom:.75rem;margin-bottom:1rem;border-bottom:2px solid var(--border);}
+.card-title.income{border-color:var(--green);}.card-title.income span{color:var(--green);}
+.card-title.expense{border-color:var(--red);}.card-title.expense span{color:var(--red);}
+
+.row{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;}
+.row-label{flex:1.4;padding:.5rem .75rem;border:1px solid var(--border);border-radius:.5rem;background:var(--surface2);font-size:.875rem;}
+.row-label:focus{outline:none;border-color:var(--primary);}
+.row-amt{flex:1;padding:.5rem .75rem;border:1px solid var(--border);border-radius:.5rem;background:var(--surface2);font-size:.875rem;}
+.row-amt:focus{outline:none;border-color:var(--primary);}
+.del-btn{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--faint);font-size:.8rem;flex-shrink:0;transition:color var(--t),background var(--t);}
+.del-btn:hover{color:var(--red);background:var(--red-bg);}
+.add-btn{width:100%;padding:.5rem;border:1.5px dashed var(--border);border-radius:.5rem;color:var(--muted);font-size:.82rem;margin-top:.25rem;transition:background var(--t),border-color var(--t);}
+.add-btn:hover{background:var(--offset);border-color:var(--primary);color:var(--primary);}
+
+.calc-btn{display:block;width:100%;padding:.9rem;background:var(--primary);color:#fff;border-radius:2rem;font-size:1rem;font-weight:700;letter-spacing:.03em;margin-bottom:1rem;transition:background var(--t);}
+.calc-btn:hover{background:var(--primary-h);}
+
+.summary{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);}
+.summary-top{padding:1.25rem 1.5rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;}
+.sum-item{text-align:center;padding:.9rem .5rem;border-radius:.65rem;}
+.sum-item.inc-bg{background:var(--green-bg);}
+.sum-item.exp-bg{background:var(--red-bg);}
+.sum-item.bal-bg-pos{background:var(--green-bg);}
+.sum-item.bal-bg-neg{background:var(--red-bg);}
+.sum-item.bal-bg-zero{background:var(--gold-bg);}
+.sum-label{font-size:.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem;}
+.sum-value{font-size:1.2rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1;}
+.sum-value.pos{color:var(--green);}.sum-value.neg{color:var(--red);}.sum-value.zero{color:var(--gold);}
+.remark{padding:.9rem 1.5rem;text-align:center;font-size:.85rem;border-top:1px solid var(--divider);color:var(--muted);}
+.chart-wrap{padding:1.25rem 1.5rem;border-top:1px solid var(--divider);}
+.chart-title{font-size:.85rem;font-weight:700;margin-bottom:.75rem;}
+.chart-canvas{position:relative;height:200px;}
+
+.history-bar{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.5rem;border-top:1px solid var(--divider);}
+.history-title{font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+.clear-btn{font-size:.75rem;color:var(--red);padding:.25rem .6rem;border:1px solid var(--red-bg);border-radius:.4rem;background:var(--red-bg);}
+.history-list{padding:0 1rem .75rem;}
+.history-item{display:flex;justify-content:space-between;align-items:center;padding:.5rem;border-radius:.5rem;font-size:.82rem;cursor:pointer;gap:.5rem;transition:background var(--t);}
+.history-item:hover{background:var(--offset);}
+.history-item .hi-month{font-weight:600;min-width:80px;}
+.history-item .hi-detail{color:var(--muted);flex:1;font-size:.78rem;}
+.history-item .hi-bal{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;}
+
+.loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:150;gap:1rem;}
+.loading-overlay.hidden{display:none;}
+.spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:.6rem 1.5rem;border-radius:2rem;font-size:.875rem;font-weight:500;opacity:0;transition:opacity .3s,transform .3s;z-index:999;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+@media(max-width:480px){
+  .summary-top{grid-template-columns:1fr 1fr;}.sum-item:last-child{grid-column:span 2;}
+  .main{padding:1rem .75rem;}
+  .sync-badge span{display:none;}
+}
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>💰 個人收支平衡表</h1>
 
-  <!-- 月份選擇 -->
-  <div class="card" style="padding:12px 20px;">
-    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-      <label style="font-weight:bold;">📅 月份：</label>
-      <select id="year"></select>
-      <select id="month">
-        <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
-        <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
-        <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option>
-        <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- 收入 -->
-  <div class="card income">
-    <h2>📈 收入</h2>
-    <div id="income-rows">
-      <div class="row">
-        <input type="text" placeholder="項目（如：薪金）" value="薪金">
-        <input type="number" placeholder="金額 (HKD)" min="0">
-        <button class="btn-del" onclick="delRow(this)">✕</button>
-      </div>
-      <div class="row">
-        <input type="text" placeholder="項目（如：股息）" value="股息/投資收入">
-        <input type="number" placeholder="金額 (HKD)" min="0">
-        <button class="btn-del" onclick="delRow(this)">✕</button>
-      </div>
-    </div>
-    <button class="btn-add" onclick="addRow('income-rows', '收入項目')">＋ 新增收入項目</button>
-  </div>
-
-  <!-- 支出 -->
-  <div class="card expense">
-    <h2>📉 支出</h2>
-    <div id="expense-rows">
-      <div class="row">
-        <input type="text" placeholder="項目" value="租金/按揭">
-        <input type="number" placeholder="金額 (HKD)" min="0">
-        <button class="btn-del" onclick="delRow(this)">✕</button>
-      </div>
-      <div class="row">
-        <input type="text" placeholder="項目" value="飲食">
-        <input type="number" placeholder="金額 (HKD)" min="0">
-        <button class="btn-del" onclick="delRow(this)">✕</button>
-      </div>
-      <div class="row">
-        <input type="text" placeholder="項目" value="交通">
-        <input type="number" placeholder="金額 (HKD)" min="0">
-        <button class="btn-del" onclick="delRow(this)">✕</button>
-      </div>
-      <div class="row">
-        <input type="text" placeholder="項目" value="水電煤">
-        <input type="number" placeholder="金額 (HKD)" min="0">
-        <button class="btn-del" onclick="delRow(this)">✕</button>
-      </div>
-      <div class="row">
-        <input type="text" placeholder="項目" value="娛樂/其他">
-        <input type="number" placeholder="金額 (HKD)" min="0">
-        <button class="btn-del" onclick="delRow(this)">✕</button>
-      </div>
-    </div>
-    <button class="btn-add" onclick="addRow('expense-rows', '支出項目')">＋ 新增支出項目</button>
-  </div>
-
-  <button class="btn-calc" onclick="calculate()">📊 計算收支</button>
-
-  <!-- 結果 -->
-  <div class="summary" id="summary" style="display:none; margin-top:16px;">
-    <h2>📋 本月結算</h2>
-    <div class="sum-row"><span>總收入</span><span id="total-income" class="positive"></span></div>
-    <div class="sum-row"><span>總支出</span><span id="total-expense" class="negative"></span></div>
-    <div class="sum-row total"><span>結餘</span><span id="balance"></span></div>
-    <div style="margin-top:14px; font-size:0.85em; color:rgba(255,255,255,0.7); text-align:center;" id="remark"></div>
-  </div>
+<div class="loading-overlay" id="loading-overlay">
+  <div class="spinner"></div>
+  <span style="font-size:.875rem;color:var(--muted)">連接 Firebase…</span>
 </div>
 
+<header class="header">
+  <div class="logo">
+    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="12" width="22" height="12" rx="2.5" fill="currentColor" opacity=".15"/>
+      <path d="M13 2L3 10h20L13 2z" fill="currentColor"/>
+      <rect x="7" y="14" width="5" height="5" rx="1" fill="currentColor" opacity=".55"/>
+      <rect x="14" y="14" width="5" height="5" rx="1" fill="currentColor" opacity=".55"/>
+    </svg>
+    個人收支平衡表
+  </div>
+  <div class="hdr-right">
+    <div class="sync-badge">
+      <div class="sync-dot connecting" id="sync-dot"></div>
+      <span id="sync-text">連接中</span>
+    </div>
+    <button class="icon-btn" id="theme-btn" aria-label="切換主題">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="month-bar">
+  <label>📅 月份</label>
+  <select id="sel-year" class="sel"></select>
+  <select id="sel-month" class="sel">
+    <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
+    <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
+    <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option>
+    <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+  </select>
+</div>
+
+<main class="main">
+  <div class="card">
+    <div class="card-title income"><span>📈 收入</span></div>
+    <div id="income-rows">
+      <div class="row"><input class="row-label" type="text" placeholder="項目" value="薪金"><input class="row-amt" type="number" placeholder="金額 (HKD)" min="0"><button class="del-btn" onclick="delRow(this)">✕</button></div>
+      <div class="row"><input class="row-label" type="text" placeholder="項目" value="股息／投資收入"><input class="row-amt" type="number" placeholder="金額 (HKD)" min="0"><button class="del-btn" onclick="delRow(this)">✕</button></div>
+    </div>
+    <button class="add-btn" onclick="addRow('income-rows','收入項目')">＋ 新增收入項目</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title expense"><span>📉 支出</span></div>
+    <div id="expense-rows">
+      <div class="row"><input class="row-label" type="text" placeholder="項目" value="租金／按揭"><input class="row-amt" type="number" placeholder="金額 (HKD)" min="0"><button class="del-btn" onclick="delRow(this)">✕</button></div>
+      <div class="row"><input class="row-label" type="text" placeholder="項目" value="飲食"><input class="row-amt" type="number" placeholder="金額 (HKD)" min="0"><button class="del-btn" onclick="delRow(this)">✕</button></div>
+      <div class="row"><input class="row-label" type="text" placeholder="項目" value="交通"><input class="row-amt" type="number" placeholder="金額 (HKD)" min="0"><button class="del-btn" onclick="delRow(this)">✕</button></div>
+      <div class="row"><input class="row-label" type="text" placeholder="項目" value="水電煤"><input class="row-amt" type="number" placeholder="金額 (HKD)" min="0"><button class="del-btn" onclick="delRow(this)">✕</button></div>
+      <div class="row"><input class="row-label" type="text" placeholder="項目" value="娛樂／其他"><input class="row-amt" type="number" placeholder="金額 (HKD)" min="0"><button class="del-btn" onclick="delRow(this)">✕</button></div>
+    </div>
+    <button class="add-btn" onclick="addRow('expense-rows','支出項目')">＋ 新增支出項目</button>
+  </div>
+
+  <button class="calc-btn" onclick="calculate()">📊 計算並儲存到 Firebase</button>
+
+  <div class="summary" id="summary" style="display:none">
+    <div class="summary-top">
+      <div class="sum-item inc-bg"><div class="sum-label">總收入</div><div class="sum-value pos" id="r-income"></div></div>
+      <div class="sum-item exp-bg"><div class="sum-label">總支出</div><div class="sum-value neg" id="r-expense"></div></div>
+      <div class="sum-item" id="r-bal-box"><div class="sum-label">結餘</div><div class="sum-value" id="r-balance"></div></div>
+    </div>
+    <div class="remark" id="r-remark"></div>
+    <div class="chart-wrap">
+      <div class="chart-title">支出分類分佈</div>
+      <div class="chart-canvas"><canvas id="pie-chart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="summary" id="history-card" style="margin-top:1rem;display:none">
+    <div class="history-bar">
+      <span class="history-title">📅 歷史記錄（雲端同步）</span>
+      <button class="clear-btn" onclick="clearHistory()">清除全部</button>
+    </div>
+    <div class="history-list" id="history-list"></div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════
+     Firebase Realtime Database — wu-expense project
+     Path: personal_budget / {year-month}
+     ═══════════════════════════════════════════════ -->
+<script type="module">
+import { initializeApp }  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, set, onValue, remove, get }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyDODO5ASka-295Ep8wJSDphrrL9ywcikaE",
+  authDomain:        "wu-expense.firebaseapp.com",
+  projectId:         "wu-expense",
+  storageBucket:     "wu-expense.firebasestorage.app",
+  messagingSenderId: "244292496725",
+  appId:             "1:244292496725:web:d266a8fe265a7769e113dc",
+  databaseURL:       "https://wu-expense-default-rtdb.asia-southeast1.firebasedatabase.app"
+};
+
+const app = initializeApp(firebaseConfig, 'personal');
+const db  = getDatabase(app);
+
+function setSync(state, text){
+  document.getElementById('sync-dot').className = 'sync-dot ' + state;
+  document.getElementById('sync-text').textContent = text;
+}
+
+/* ── 監聽 personal_budget 整個節點 ── */
+const budgetRef = ref(db, 'personal_budget');
+onValue(budgetRef, snap => {
+  document.getElementById('loading-overlay').classList.add('hidden');
+  setSync('live','🟢 即時同步');
+  const val = snap.val() || {};
+  window._budgetData = val;
+  renderHistory(val);
+}, err => {
+  console.error(err);
+  setSync('offline','連接失敗');
+  document.getElementById('loading-overlay').classList.add('hidden');
+  showToast('⚠️ Firebase 連接失敗，請檢查 Rules');
+});
+
+/* ── 儲存本月記錄 ── */
+window._saveToFirebase = async (key, data) => {
+  await set(ref(db, 'personal_budget/' + key), data);
+};
+
+/* ── 刪除全部 ── */
+window._clearFirebase = async () => {
+  await remove(budgetRef);
+};
+
+/* ── 載入某月記錄回表單 ── */
+window._loadMonthData = key => {
+  const data = (window._budgetData || {})[key];
+  if(!data) return;
+  // 填返收入
+  const incCont = document.getElementById('income-rows');
+  incCont.innerHTML = '';
+  (data.income || []).forEach(r => {
+    const d = document.createElement('div'); d.className='row';
+    d.innerHTML = `<input class="row-label" type="text" value="${r.label}"><input class="row-amt" type="number" value="${r.amount}" min="0"><button class="del-btn" onclick="delRow(this)">✕</button>`;
+    incCont.appendChild(d);
+  });
+  // 填返支出
+  const expCont = document.getElementById('expense-rows');
+  expCont.innerHTML = '';
+  (data.expense || []).forEach(r => {
+    const d = document.createElement('div'); d.className='row';
+    d.innerHTML = `<input class="row-label" type="text" value="${r.label}"><input class="row-amt" type="number" value="${r.amount}" min="0"><button class="del-btn" onclick="delRow(this)">✕</button>`;
+    expCont.appendChild(d);
+  });
+  const [y, m] = key.split('-');
+  document.getElementById('sel-year').value = y;
+  document.getElementById('sel-month').value = parseInt(m);
+  showToast(`📅 已載入 ${data.label} 數據`);
+  window.scrollTo({top:0, behavior:'smooth'});
+};
+</script>
+
 <script>
-  // 設定年份選單
-  const yearSel = document.getElementById('year');
-  for(let y = 2024; y <= 2030; y++){
-    const opt = document.createElement('option');
-    opt.value = y; opt.text = y + '年';
-    if(y === 2026) opt.selected = true;
-    yearSel.appendChild(opt);
-  }
-  document.getElementById('month').value = 6;
+/* ── THEME ── */
+(()=>{
+  const btn=document.getElementById('theme-btn'),root=document.documentElement;
+  let t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+  root.setAttribute('data-theme',t);
+  btn.addEventListener('click',()=>{
+    t=t==='dark'?'light':'dark'; root.setAttribute('data-theme',t);
+    btn.innerHTML=t==='dark'
+      ?'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+      :'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  });
+})();
 
-  function addRow(containerId, placeholder){
-    const container = document.getElementById(containerId);
-    const div = document.createElement('div');
-    div.className = 'row';
-    div.innerHTML = `<input type="text" placeholder="${placeholder}"><input type="number" placeholder="金額 (HKD)" min="0"><button class="btn-del" onclick="delRow(this)">✕</button>`;
-    container.appendChild(div);
-  }
+/* ── YEAR SELECTOR ── */
+const ySel=document.getElementById('sel-year');
+const nowY=new Date().getFullYear(), nowM=new Date().getMonth()+1;
+for(let y=2024;y<=2030;y++){const o=document.createElement('option');o.value=y;o.text=y+'年';if(y===nowY)o.selected=true;ySel.appendChild(o);}
+document.getElementById('sel-month').value=nowM;
 
-  function delRow(btn){ btn.parentElement.remove(); }
+/* ── HELPERS ── */
+const fmt=n=>'HKD '+Number(n).toLocaleString('zh-HK',{minimumFractionDigits:0,maximumFractionDigits:0});
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
+function addRow(id,ph){
+  const c=document.getElementById(id),d=document.createElement('div');
+  d.className='row';
+  d.innerHTML=`<input class="row-label" type="text" placeholder="${ph}"><input class="row-amt" type="number" placeholder="金額 (HKD)" min="0"><button class="del-btn" onclick="delRow(this)">✕</button>`;
+  c.appendChild(d);
+}
+function delRow(btn){btn.parentElement.remove();}
 
-  function calculate(){
-    let totalIn = 0, totalOut = 0;
-    document.querySelectorAll('#income-rows .row').forEach(row => {
-      const val = parseFloat(row.querySelectorAll('input')[1].value) || 0;
-      totalIn += val;
+/* ── PIE CHART ── */
+let pieChart=null;
+function drawPie(labels,data){
+  if(pieChart)pieChart.destroy();
+  const dk=document.documentElement.getAttribute('data-theme')==='dark';
+  const tc=dk?'#cdccca':'#7a7974';
+  const bc=dk?'#1c1b19':'#f9f8f5';
+  const cols=['#01696f','#437a22','#d19900','#964219','#a13544','#006494','#7a39bb','#4f98a3','#6daa45','#e8af34'];
+  pieChart=new Chart(document.getElementById('pie-chart').getContext('2d'),{
+    type:'doughnut',
+    data:{labels,datasets:[{data,backgroundColor:cols.slice(0,data.length),borderWidth:2,borderColor:bc}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:tc,font:{size:11,family:"'Noto Sans HK',sans-serif"},boxWidth:13,padding:9}}},cutout:'58%'}
+  });
+}
+
+/* ── CALCULATE ── */
+async function calculate(){
+  let totalIn=0, totalOut=0;
+  const incRows=[], expLabels=[], expData=[], expRows=[];
+  document.querySelectorAll('#income-rows .row').forEach(r=>{
+    const label=r.querySelectorAll('input')[0].value.trim()||'收入';
+    const amount=parseFloat(r.querySelectorAll('input')[1].value)||0;
+    totalIn+=amount;
+    incRows.push({label,amount});
+  });
+  document.querySelectorAll('#expense-rows .row').forEach(r=>{
+    const label=r.querySelectorAll('input')[0].value.trim()||'其他';
+    const amount=parseFloat(r.querySelectorAll('input')[1].value)||0;
+    totalOut+=amount;
+    expRows.push({label,amount});
+    if(amount>0){expLabels.push(label);expData.push(amount);}
+  });
+  const bal=totalIn-totalOut;
+  const y=document.getElementById('sel-year').value;
+  const m=String(document.getElementById('sel-month').value).padStart(2,'0');
+  const key=`${y}-${m}`;
+  const monthLabel=`${y}年${m}月`;
+
+  // 顯示結果
+  document.getElementById('r-income').textContent=fmt(totalIn);
+  document.getElementById('r-expense').textContent=fmt(totalOut);
+  const bEl=document.getElementById('r-balance');
+  const bBox=document.getElementById('r-bal-box');
+  bEl.textContent=fmt(bal);
+  if(bal>0){bEl.className='sum-value pos';bBox.className='sum-item bal-bg-pos';}
+  else if(bal<0){bEl.className='sum-value neg';bBox.className='sum-item bal-bg-neg';}
+  else{bEl.className='sum-value zero';bBox.className='sum-item bal-bg-zero';}
+  let remark='';
+  if(bal>0) remark='✅ 本月有盈餘！建議撥 HKD '+Math.round(bal*0.3).toLocaleString()+' 用於儲蓄或投資。';
+  else if(bal<0) remark='⚠️ 本月超支 HKD '+Math.abs(bal).toLocaleString()+'，需要檢視支出項目。';
+  else remark='⚖️ 本月收支剛好平衡。';
+  document.getElementById('r-remark').textContent=remark;
+  document.getElementById('summary').style.display='block';
+  document.getElementById('summary').scrollIntoView({behavior:'smooth',block:'nearest'});
+  if(expData.length) drawPie(expLabels,expData);
+
+  // 儲存到 Firebase
+  try {
+    await window._saveToFirebase(key, {
+      label: monthLabel, inc: totalIn, exp: totalOut, bal,
+      income: incRows, expense: expRows,
+      updatedAt: new Date().toISOString()
     });
-    document.querySelectorAll('#expense-rows .row').forEach(row => {
-      const val = parseFloat(row.querySelectorAll('input')[1].value) || 0;
-      totalOut += val;
-    });
-    const balance = totalIn - totalOut;
-    const fmt = n => 'HKD ' + n.toLocaleString('zh-HK', {minimumFractionDigits:2});
-    document.getElementById('total-income').textContent = fmt(totalIn);
-    document.getElementById('total-expense').textContent = fmt(totalOut);
-    const balEl = document.getElementById('balance');
-    balEl.textContent = fmt(balance);
-    balEl.className = balance > 0 ? 'positive' : balance < 0 ? 'negative' : 'neutral';
-    let remark = '';
-    if(balance > 0) remark = '✅ 本月有盈餘！建議撥 ' + Math.round(balance * 0.3).toLocaleString() + ' HKD 用於儲蓄或投資。';
-    else if(balance < 0) remark = '⚠️ 本月超支 ' + Math.abs(balance).toLocaleString() + ' HKD，需要檢視支出項目。';
-    else remark = '⚖️ 本月收支剛好平衡。';
-    document.getElementById('remark').textContent = remark;
-    document.getElementById('summary').style.display = 'block';
-    document.getElementById('summary').scrollIntoView({behavior:'smooth'});
+    showToast('✅ 已同步到 Firebase！');
+  } catch(e){
+    showToast('❌ Firebase 儲存失敗：'+e.message);
   }
+}
+window.calculate = calculate;
+
+/* ── HISTORY ── */
+function renderHistory(data){
+  const keys=Object.keys(data||{}).sort().reverse();
+  const card=document.getElementById('history-card');
+  if(!keys.length){card.style.display='none';return;}
+  card.style.display='block';
+  document.getElementById('history-list').innerHTML=keys.map(k=>{
+    const item=data[k];
+    const balCls=item.bal>0?'pos':item.bal<0?'neg':'zero';
+    const sign=item.bal>0?'+':item.bal<0?'−':'';
+    return `<div class="history-item" onclick="_loadMonthData('${k}')">
+      <span class="hi-month">📅 ${item.label}</span>
+      <span class="hi-detail">收 ${fmt(item.inc)} ／ 支 ${fmt(item.exp)}</span>
+      <span class="hi-bal ${balCls}">${sign}${fmt(Math.abs(item.bal))}</span>
+    </div>`;
+  }).join('');
+}
+window.renderHistory = renderHistory;
+
+async function clearHistory(){
+  if(!confirm('確定清除 Firebase 所有個人收支歷史？'))return;
+  try {
+    await window._clearFirebase();
+    showToast('🗑 已清除 Firebase 歷史記錄');
+  } catch(e){ showToast('❌ 清除失敗'); }
+}
+window.clearHistory = clearHistory;
+window.addRow = addRow;
+window.delRow = delRow;
 </script>
 </body>
 </html>
