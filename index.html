@@ -1,379 +1,793 @@
 <!DOCTYPE html>
-<html lang="zh-HK">
+<html lang="zh-HK" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>南區及中西區長者社區支援服務資源</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;900&display=swap" rel="stylesheet">
+<title>家庭收支記錄</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  body { font-family: 'Noto Sans HK', sans-serif; }
-  .gradient-bg {
-    background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fef3c7 100%);
-  }
-  .card-hover {
-    transition: all 0.3s ease;
-  }
-  .card-hover:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 25px -5px rgba(236, 72, 153, 0.15);
-  }
-  .tab-btn {
-    transition: all 0.2s ease;
-  }
-  .tab-btn.active {
-    background: linear-gradient(135deg, #ec4899, #f43f5e);
-    color: white;
-    box-shadow: 0 4px 14px rgba(236, 72, 153, 0.4);
-  }
-  .phone-link:hover { transform: scale(1.05); }
-  .section-icon {
-    background: linear-gradient(135deg, #ec4899, #f43f5e);
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .fade-in { animation: fadeIn 0.4s ease-out; }
-  .hide { display: none !important; }
+/* ====== DESIGN TOKENS ====== */
+:root, [data-theme="light"] {
+  --color-bg: #f7f6f2;
+  --color-surface: #f9f8f5;
+  --color-surface-2: #fbfbf9;
+  --color-surface-offset: #f0ede8;
+  --color-divider: #dcd9d5;
+  --color-border: #d4d1ca;
+  --color-text: #28251d;
+  --color-text-muted: #7a7974;
+  --color-text-faint: #bab9b4;
+  --color-primary: #01696f;
+  --color-primary-hover: #0c4e54;
+  --color-success: #437a22;
+  --color-success-highlight: #d4dfcc;
+  --color-error: #a13544;
+  --color-error-highlight: #f3d7db;
+  --color-gold: #d19900;
+  --color-gold-highlight: #f5edcc;
+  --color-warning: #964219;
+  --color-warning-highlight: #f0ddd3;
+  --shadow-sm: 0 1px 3px oklch(0.2 0.01 80 / 0.07);
+  --shadow-md: 0 4px 12px oklch(0.2 0.01 80 / 0.09);
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --font-body: 'Noto Sans HK', 'PingFang HK', sans-serif;
+  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+  --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+  --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+  --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem;
+  --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem;
+  --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem;
+  --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-theme="dark"] {
+  --color-bg: #171614;
+  --color-surface: #1c1b19;
+  --color-surface-2: #201f1d;
+  --color-surface-offset: #252422;
+  --color-divider: #262523;
+  --color-border: #393836;
+  --color-text: #cdccca;
+  --color-text-muted: #797876;
+  --color-text-faint: #5a5957;
+  --color-primary: #4f98a3;
+  --color-primary-hover: #227f8b;
+  --color-success: #6daa45;
+  --color-success-highlight: #2a3a22;
+  --color-error: #dd6974;
+  --color-error-highlight: #3a2225;
+  --color-gold: #e8af34;
+  --color-gold-highlight: #3a3020;
+  --color-warning: #bb653b;
+  --color-warning-highlight: #3a2a1e;
+  --shadow-sm: 0 1px 3px oklch(0 0 0 / 0.25);
+  --shadow-md: 0 4px 12px oklch(0 0 0 / 0.35);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body { font-family: var(--font-body); font-size: var(--text-sm); color: var(--color-text); background: var(--color-bg); min-height: 100dvh; }
+button { cursor: pointer; border: none; background: none; font: inherit; color: inherit; }
+input, select { font: inherit; color: inherit; }
+table { border-collapse: collapse; width: 100%; }
+
+/* ====== LAYOUT ====== */
+.app-header {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-divider);
+  padding: var(--space-3) var(--space-6);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+.header-logo { display: flex; align-items: center; gap: var(--space-3); }
+.header-logo svg { color: var(--color-primary); }
+.logo-text { font-size: var(--text-base); font-weight: 700; color: var(--color-text); }
+.header-actions { display: flex; align-items: center; gap: var(--space-3); }
+
+.main-nav {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-divider);
+  padding: 0 var(--space-6);
+  display: flex; gap: 0;
+}
+.nav-tab {
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-sm); font-weight: 500;
+  color: var(--color-text-muted);
+  border-bottom: 2px solid transparent;
+  transition: color var(--transition), border-color var(--transition);
+  white-space: nowrap;
+}
+.nav-tab:hover { color: var(--color-text); }
+.nav-tab.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+
+.main-content {
+  max-width: 1280px; margin: 0 auto;
+  padding: var(--space-6);
+}
+.page { display: none; }
+.page.active { display: block; }
+
+/* ====== KPI CARDS ====== */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-6); }
+.kpi-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+.kpi-label { font-size: var(--text-xs); color: var(--color-text-muted); font-weight: 500; margin-bottom: var(--space-2); text-transform: uppercase; letter-spacing: 0.05em; }
+.kpi-value { font-size: var(--text-xl); font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.kpi-value.positive { color: var(--color-success); }
+.kpi-value.negative { color: var(--color-error); }
+.kpi-badge { display: inline-block; margin-top: var(--space-2); padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); font-size: var(--text-xs); font-weight: 600; }
+.kpi-badge.surplus { background: var(--color-success-highlight); color: var(--color-success); }
+.kpi-badge.deficit { background: var(--color-error-highlight); color: var(--color-error); }
+.kpi-badge.balanced { background: var(--color-gold-highlight); color: var(--color-gold); }
+
+/* ====== MEMBER SECTION ====== */
+.member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: var(--space-5); margin-bottom: var(--space-6); }
+.member-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+}
+.member-header { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-5); }
+.member-avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; font-weight: 700; flex-shrink: 0;
+}
+.avatar-me { background: #dbeafe; color: #1e40af; }
+.avatar-husband { background: #dcfce7; color: #15803d; }
+.avatar-family { background: #fef3c7; color: #d97706; }
+.member-name { font-size: var(--text-base); font-weight: 700; }
+.member-subtitle { font-size: var(--text-xs); color: var(--color-text-muted); }
+.member-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-3); }
+.stat-item { text-align: center; padding: var(--space-3); background: var(--color-surface-offset); border-radius: var(--radius-md); }
+.stat-label { font-size: var(--text-xs); color: var(--color-text-muted); margin-bottom: var(--space-1); }
+.stat-value { font-size: var(--text-sm); font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat-value.income { color: var(--color-success); }
+.stat-value.expense { color: var(--color-error); }
+.stat-value.balance.pos { color: var(--color-success); }
+.stat-value.balance.neg { color: var(--color-error); }
+
+/* ====== FORM ====== */
+.form-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-6);
+}
+.form-card h2 { font-size: var(--text-lg); font-weight: 700; margin-bottom: var(--space-5); }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--space-4); }
+.form-group { display: flex; flex-direction: column; gap: var(--space-2); }
+.form-group label { font-size: var(--text-xs); font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.form-input {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+  font-size: var(--text-sm);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.form-input:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 3px oklch(from var(--color-primary) l c h / 0.12); }
+.form-actions { display: flex; gap: var(--space-3); margin-top: var(--space-5); }
+.btn {
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm); font-weight: 600;
+  transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+}
+.btn-primary { background: var(--color-primary); color: #fff; }
+.btn-primary:hover { background: var(--color-primary-hover); }
+.btn-ghost { background: transparent; color: var(--color-text-muted); border: 1px solid var(--color-border); }
+.btn-ghost:hover { background: var(--color-surface-offset); }
+.btn-danger { background: var(--color-error-highlight); color: var(--color-error); font-size: var(--text-xs); padding: var(--space-1) var(--space-3); }
+.btn-danger:hover { opacity: 0.8; }
+
+/* ====== TABLE ====== */
+.table-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-6);
+}
+.table-header { padding: var(--space-4) var(--space-6); border-bottom: 1px solid var(--color-divider); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-3); }
+.table-title { font-size: var(--text-base); font-weight: 700; }
+.table-filters { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+.filter-select {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+  font-size: var(--text-xs);
+  font-family: var(--font-body);
+}
+.table-wrap { overflow-x: auto; }
+table th { padding: var(--space-3) var(--space-4); text-align: left; font-size: var(--text-xs); font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; background: var(--color-surface-offset); border-bottom: 1px solid var(--color-divider); }
+table td { padding: var(--space-3) var(--space-4); font-size: var(--text-sm); border-bottom: 1px solid var(--color-divider); font-variant-numeric: tabular-nums; }
+table tr:last-child td { border-bottom: none; }
+table tr:hover td { background: var(--color-surface-offset); transition: background var(--transition); }
+.badge {
+  display: inline-block; padding: 0.15rem var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs); font-weight: 600;
+}
+.badge-income { background: var(--color-success-highlight); color: var(--color-success); }
+.badge-expense { background: var(--color-error-highlight); color: var(--color-error); }
+.badge-me { background: #dbeafe; color: #1e40af; }
+.badge-husband { background: #dcfce7; color: #15803d; }
+.badge-family { background: #fef3c7; color: #d97706; }
+.amount-income { color: var(--color-success); font-weight: 600; }
+.amount-expense { color: var(--color-error); font-weight: 600; }
+.empty-state { padding: var(--space-12) var(--space-8); text-align: center; color: var(--color-text-muted); }
+.empty-state p { font-size: var(--text-sm); }
+
+/* ====== CHARTS ====== */
+.chart-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--space-5); margin-bottom: var(--space-6); }
+.chart-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+.chart-title { font-size: var(--text-sm); font-weight: 700; margin-bottom: var(--space-4); color: var(--color-text); }
+.chart-wrap { position: relative; height: 240px; }
+
+/* ====== MONTH SUMMARY TABLE ====== */
+.summary-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.summary-card table th:first-child, .summary-card table td:first-child { position: sticky; left: 0; background: var(--color-surface-offset); z-index: 1; }
+.balance-positive { color: var(--color-success); font-weight: 700; }
+.balance-negative { color: var(--color-error); font-weight: 700; }
+
+/* ====== THEME TOGGLE ====== */
+.theme-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--color-surface-offset);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  transition: background var(--transition);
+}
+.theme-btn:hover { background: var(--color-divider); }
+
+/* ====== MONTH SELECTOR ====== */
+.month-bar { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-6); flex-wrap: wrap; }
+.month-bar label { font-size: var(--text-xs); font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 640px) {
+  .main-content { padding: var(--space-4); }
+  .form-grid { grid-template-columns: 1fr 1fr; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .member-grid { grid-template-columns: 1fr; }
+  .chart-grid { grid-template-columns: 1fr; }
+  .main-nav { overflow-x: auto; }
+}
+
+/* ====== TOAST ====== */
+.toast {
+  position: fixed; bottom: var(--space-6); left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--color-text); color: var(--color-bg);
+  padding: var(--space-3) var(--space-6); border-radius: var(--radius-full);
+  font-size: var(--text-sm); font-weight: 500;
+  opacity: 0; transition: opacity 0.3s, transform 0.3s;
+  z-index: 999; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* skip link */
+.skip-link { position: absolute; top: -999px; left: var(--space-4); z-index: 9999; background: var(--color-primary); color: #fff; padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); font-size: var(--text-sm); }
+.skip-link:focus { top: var(--space-2); }
 </style>
 </head>
-<body class="gradient-bg min-h-screen">
+<body>
+<a href="#main" class="skip-link">跳到內容</a>
 
-<!-- Header -->
-<header class="bg-gradient-to-r from-pink-600 via-rose-500 to-orange-400 text-white shadow-xl">
-  <div class="max-w-6xl mx-auto px-4 py-8 sm:py-12">
-    <div class="flex items-center gap-3 mb-2">
-      <span class="text-3xl sm:text-4xl">🌸</span>
-      <h1 class="text-2xl sm:text-4xl font-black tracking-tight">南區及中西區長者社區支援服務</h1>
-    </div>
-    <p class="text-pink-100 text-sm sm:text-base ml-12">Community Support Services for the Elderly · Southern & Central and Western District</p>
-    <div class="mt-4 ml-12 flex flex-wrap gap-2 text-xs sm:text-sm">
-      <span class="bg-white/20 backdrop-blur px-3 py-1 rounded-full">📍 服務中心一覽</span>
-      <span class="bg-white/20 backdrop-blur px-3 py-1 rounded-full">☎️ 緊急聯絡電話</span>
-      <span class="bg-white/20 backdrop-blur px-3 py-1 rounded-full">🚐 交通及家居支援</span>
-    </div>
+<header class="app-header">
+  <div class="header-logo">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-label="家庭收支" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="10" width="24" height="16" rx="3" fill="currentColor" opacity="0.15"/>
+      <path d="M14 2L4 10h20L14 2z" fill="currentColor"/>
+      <rect x="8" y="14" width="5" height="5" rx="1" fill="currentColor" opacity="0.6"/>
+      <rect x="15" y="14" width="5" height="5" rx="1" fill="currentColor" opacity="0.6"/>
+      <rect x="11" y="19" width="6" height="7" rx="1" fill="currentColor"/>
+    </svg>
+    <span class="logo-text">家庭收支記錄</span>
+  </div>
+  <div class="header-actions">
+    <button class="theme-btn" data-theme-toggle aria-label="切換主題">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
   </div>
 </header>
 
-<!-- Search & Filter -->
-<div class="max-w-6xl mx-auto px-4 -mt-6 relative z-10">
-  <div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6">
-    <div class="relative mb-4">
-      <input id="searchInput" type="text" placeholder="🔍 搜尋機構名稱、地址或電話..." 
-        class="w-full px-5 py-3 border-2 border-pink-100 rounded-xl focus:border-pink-400 focus:outline-none text-sm sm:text-base">
+<nav class="main-nav" aria-label="主導航">
+  <button class="nav-tab active" onclick="switchPage('dashboard')">📊 總覽</button>
+  <button class="nav-tab" onclick="switchPage('add')">➕ 新增記錄</button>
+  <button class="nav-tab" onclick="switchPage('records')">📋 所有記錄</button>
+  <button class="nav-tab" onclick="switchPage('monthly')">📅 月結總表</button>
+</nav>
+
+<main class="main-content" id="main">
+
+  <!-- ====== PAGE: DASHBOARD ====== -->
+  <div class="page active" id="page-dashboard">
+    <div class="month-bar">
+      <label for="dash-month">查閱月份</label>
+      <select id="dash-month" class="filter-select" onchange="renderDashboard()"></select>
+      <span style="font-size:var(--text-xs);color:var(--color-text-muted)">（顯示該月數據）</span>
     </div>
-    <div class="flex flex-wrap gap-2">
-      <button onclick="filterSection('all')" class="tab-btn active px-4 py-2 rounded-full text-sm font-medium bg-pink-50 text-pink-700">全部</button>
-      <button onclick="filterSection('district')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium bg-pink-50 text-pink-700">長者地區中心</button>
-      <button onclick="filterSection('neighbour')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium bg-pink-50 text-pink-700">長者鄰舍中心</button>
-      <button onclick="filterSection('dementia')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium bg-pink-50 text-pink-700">認知障礙症</button>
-      <button onclick="filterSection('home')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium bg-pink-50 text-pink-700">家居照顧</button>
-      <button onclick="filterSection('discharge')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium bg-pink-50 text-pink-700">出院支援</button>
+
+    <div class="kpi-grid" id="kpi-grid"></div>
+    <div class="member-grid" id="member-cards"></div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-title">收入 vs 支出（當月）</div>
+        <div class="chart-wrap"><canvas id="chart-bar"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">支出分類分佈</div>
+        <div class="chart-wrap"><canvas id="chart-pie"></canvas></div>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Main Content -->
-<main class="max-w-6xl mx-auto px-4 py-8 space-y-10">
-
-  <!-- Section 1: 長者地區中心 -->
-  <section data-section="district" class="fade-in">
-    <div class="flex items-center gap-3 mb-5">
-      <div class="section-icon w-12 h-12 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg">🏛️</div>
-      <div>
-        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">長者地區中心</h2>
-        <p class="text-sm text-gray-500">District Elderly Community Centre</p>
-      </div>
-    </div>
-    <div class="grid sm:grid-cols-2 gap-4" id="grid-district">
-      <!-- Cards -->
-    </div>
-  </section>
-
-  <!-- Section 2: 長者鄰舍中心 -->
-  <section data-section="neighbour" class="fade-in">
-    <div class="flex items-center gap-3 mb-5">
-      <div class="section-icon w-12 h-12 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg">🏘️</div>
-      <div>
-        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">長者鄰舍中心</h2>
-        <p class="text-sm text-gray-500">Neighbourhood Elderly Centre</p>
-      </div>
-    </div>
-    <div class="grid sm:grid-cols-2 gap-4" id="grid-neighbour"></div>
-  </section>
-
-  <!-- Section 3: 認知障礙症 -->
-  <section data-section="dementia" class="fade-in">
-    <div class="flex items-center gap-3 mb-5">
-      <div class="section-icon w-12 h-12 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg">🧠</div>
-      <div>
-        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">認知障礙症核心支援服務</h2>
-        <p class="text-sm text-gray-500">Dementia Community Support Services</p>
-      </div>
-    </div>
-    <div class="grid sm:grid-cols-2 gap-4" id="grid-dementia"></div>
-  </section>
-
-  <!-- Section 4: 家居照顧 -->
-  <section data-section="home" class="fade-in">
-    <div class="flex items-center gap-3 mb-5">
-      <div class="section-icon w-12 h-12 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg">🏠</div>
-      <div>
-        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">家居及社區照顧服務</h2>
-        <p class="text-sm text-gray-500">Integrated Home Care Services</p>
-      </div>
-    </div>
-    
-    <div class="mb-4">
-      <h3 class="text-base font-bold text-rose-600 mb-3 pl-2 border-l-4 border-rose-400">綜合家居照顧服務（普通個案）</h3>
-      <div class="grid sm:grid-cols-2 gap-4" id="grid-home1"></div>
-    </div>
-
-    <div>
-      <h3 class="text-base font-bold text-rose-600 mb-3 pl-2 border-l-4 border-rose-400">改善家居及社區照顧服務</h3>
-      <div class="grid sm:grid-cols-2 gap-4" id="grid-home2"></div>
-    </div>
-  </section>
-
-  <!-- Section 5: 出院相關服務 -->
-  <section data-section="discharge" class="fade-in">
-    <div class="flex items-center gap-3 mb-5">
-      <div class="section-icon w-12 h-12 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg">🏥</div>
-      <div>
-        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">出院相關服務</h2>
-        <p class="text-sm text-gray-500">Post-Discharge Support Services</p>
-      </div>
-    </div>
-
-    <div class="grid md:grid-cols-2 gap-4 mb-4">
-      <!-- 家務協助 -->
-      <div class="bg-white rounded-2xl p-5 shadow-md card-hover">
-        <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2"><span class="text-xl">🧹</span> 家務協助服務</h3>
-        <div class="space-y-2 text-sm">
-          <a href="tel:23454455" class="phone-link flex justify-between items-center p-2 bg-pink-50 rounded-lg hover:bg-pink-100 transition">
-            <span>一線通®管家易服務</span><span class="font-mono font-bold text-pink-600">2345-4455</span>
-          </a>
-          <a href="tel:26633001" class="phone-link flex justify-between items-center p-2 bg-pink-50 rounded-lg hover:bg-pink-100 transition">
-            <span>靈實全護通</span><span class="font-mono font-bold text-pink-600">2663-3001</span>
-          </a>
-          <a href="tel:29521900" class="phone-link flex justify-between items-center p-2 bg-pink-50 rounded-lg hover:bg-pink-100 transition">
-            <span>賽馬會好手易配同盟計劃</span><span class="font-mono font-bold text-pink-600">2952-1900</span>
-          </a>
+  <!-- ====== PAGE: ADD ====== -->
+  <div class="page" id="page-add">
+    <div class="form-card">
+      <h2>新增收支記錄</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="f-date">日期 *</label>
+          <input type="date" id="f-date" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label for="f-member">成員 *</label>
+          <select id="f-member" class="form-input">
+            <option value="我">我</option>
+            <option value="先生">先生</option>
+            <option value="家庭">家庭</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="f-type">類別 *</label>
+          <select id="f-type" class="form-input">
+            <option value="收入">收入</option>
+            <option value="支出">支出</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="f-cat">項目 *</label>
+          <select id="f-cat" class="form-input">
+            <option value="人工">人工</option>
+            <option value="獎金">獎金</option>
+            <option value="租金">租金</option>
+            <option value="水電煤">水電煤</option>
+            <option value="買餸">買餸</option>
+            <option value="外出用膳">外出用膳</option>
+            <option value="交通">交通</option>
+            <option value="醫療">醫療</option>
+            <option value="娛樂">娛樂</option>
+            <option value="購物">購物</option>
+            <option value="教育">教育</option>
+            <option value="保險">保險</option>
+            <option value="儲蓄">儲蓄</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="form-group" style="grid-column: span 2;">
+          <label for="f-desc">說明（可選）</label>
+          <input type="text" id="f-desc" class="form-input" placeholder="例如：6月人工、管理費...">
+        </div>
+        <div class="form-group">
+          <label for="f-amount">金額（HK$） *</label>
+          <input type="number" id="f-amount" class="form-input" min="0.01" step="0.01" placeholder="0.00">
         </div>
       </div>
-
-      <!-- 平安鐘 -->
-      <div class="bg-white rounded-2xl p-5 shadow-md card-hover">
-        <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2"><span class="text-xl">🔔</span> 平安鐘服務</h3>
-        <a href="tel:1872800" class="phone-link flex justify-between items-center p-3 bg-gradient-to-r from-pink-50 to-rose-50 rounded-lg hover:from-pink-100 hover:to-rose-100 transition">
-          <span class="text-sm">長者安居協會 / 一線通平安鐘</span>
-          <span class="font-mono font-bold text-rose-600 text-lg">187-2800</span>
-        </a>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="addRecord()">✅ 儲存記錄</button>
+        <button class="btn btn-ghost" onclick="resetForm()">重置</button>
       </div>
     </div>
 
-    <!-- 交通服務 -->
-    <div class="bg-white rounded-2xl p-5 shadow-md card-hover mb-4">
-      <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2"><span class="text-xl">🚕</span> 交通服務</h3>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 text-sm" id="transport"></div>
+    <div class="form-card">
+      <h2>批量輸入示範數據</h2>
+      <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-4);">按下按鈕可加入示範數據，方便測試。</p>
+      <button class="btn btn-ghost" onclick="loadSampleData()">📦 載入示範數據</button>
     </div>
+  </div>
 
-    <!-- 復康用具租借 -->
-    <div class="bg-white rounded-2xl p-5 shadow-md card-hover">
-      <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2"><span class="text-xl">♿</span> 復康用具租借</h3>
-      <div class="grid sm:grid-cols-3 gap-2 text-sm">
-        <a href="tel:28051255" class="phone-link p-3 bg-pink-50 rounded-lg hover:bg-pink-100 transition">
-          <div class="font-medium">聖雅各福群會</div>
-          <div class="font-mono font-bold text-pink-600 mt-1">2805-1255</div>
-        </a>
-        <a href="tel:22551377" class="phone-link p-3 bg-pink-50 rounded-lg hover:bg-pink-100 transition">
-          <div class="font-medium">香港紅十字會</div>
-          <div class="font-mono font-bold text-pink-600 mt-1">2255-1377 / 2610-0515</div>
-        </a>
-        <a href="tel:31535252" class="phone-link p-3 bg-pink-50 rounded-lg hover:bg-pink-100 transition">
-          <div class="font-medium">賽馬會樂齡 a+</div>
-          <div class="font-mono font-bold text-pink-600 mt-1">3153-5252</div>
-          <div class="text-xs text-gray-500 mt-1">info@ageathome.hk</div>
-        </a>
+  <!-- ====== PAGE: RECORDS ====== -->
+  <div class="page" id="page-records">
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">所有收支記錄</span>
+        <div class="table-filters">
+          <select class="filter-select" id="filter-month" onchange="renderRecords()">
+            <option value="">所有月份</option>
+          </select>
+          <select class="filter-select" id="filter-member" onchange="renderRecords()">
+            <option value="">所有成員</option>
+            <option value="我">我</option>
+            <option value="先生">先生</option>
+            <option value="家庭">家庭</option>
+          </select>
+          <select class="filter-select" id="filter-type" onchange="renderRecords()">
+            <option value="">收入+支出</option>
+            <option value="收入">收入</option>
+            <option value="支出">支出</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table aria-label="收支記錄">
+          <thead>
+            <tr>
+              <th>日期</th><th>成員</th><th>類別</th><th>項目</th><th>說明</th><th>金額</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="records-body"></tbody>
+        </table>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- QR Code Section -->
-  <section class="fade-in">
-    <div class="flex items-center gap-3 mb-5">
-      <div class="section-icon w-12 h-12 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg">📱</div>
-      <div>
-        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">相關機構 QR Code</h2>
-        <p class="text-sm text-gray-500">Scan to learn more</p>
+  <!-- ====== PAGE: MONTHLY SUMMARY ====== -->
+  <div class="page" id="page-monthly">
+    <div class="table-card summary-card">
+      <div class="table-header">
+        <span class="table-title">月結總表（每月收支結餘）</span>
+      </div>
+      <div class="table-wrap">
+        <table aria-label="月結總表">
+          <thead>
+            <tr>
+              <th>月份</th>
+              <th>我 收入</th><th>我 支出</th><th>我 結餘</th>
+              <th>先生 收入</th><th>先生 支出</th><th>先生 結餘</th>
+              <th>家庭 收入</th><th>家庭 支出</th><th>家庭 結餘</th>
+              <th>全家總結餘</th><th>狀態</th>
+            </tr>
+          </thead>
+          <tbody id="monthly-body"></tbody>
+        </table>
       </div>
     </div>
-    <div class="bg-white rounded-2xl p-6 shadow-md">
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 text-center">
-        <div class="p-3 rounded-xl bg-pink-50">
-          <div class="aspect-square bg-gray-200 rounded-lg flex items-center justify-center mb-2 text-gray-400 text-xs">QR Code</div>
-          <div class="text-xs font-medium">香港仔街坊會</div>
-        </div>
-        <div class="p-3 rounded-xl bg-pink-50">
-          <div class="aspect-square bg-gray-200 rounded-lg flex items-center justify-center mb-2 text-gray-400 text-xs">QR Code</div>
-          <div class="text-xs font-medium">香港家福會</div>
-        </div>
-        <div class="p-3 rounded-xl bg-pink-50">
-          <div class="aspect-square bg-gray-200 rounded-lg flex items-center justify-center mb-2 text-gray-400 text-xs">QR Code</div>
-          <div class="text-xs font-medium">聖雅各福群會</div>
-        </div>
-        <div class="p-3 rounded-xl bg-pink-50">
-          <div class="aspect-square bg-gray-200 rounded-lg flex items-center justify-center mb-2 text-gray-400 text-xs">QR Code</div>
-          <div class="text-xs font-medium">循道衛理中心</div>
-        </div>
-        <div class="p-3 rounded-xl bg-pink-50">
-          <div class="aspect-square bg-gray-200 rounded-lg flex items-center justify-center mb-2 text-gray-400 text-xs">QR Code</div>
-          <div class="text-xs font-medium">政府社區券</div>
-        </div>
-        <div class="p-3 rounded-xl bg-pink-50">
-          <div class="aspect-square bg-gray-200 rounded-lg flex items-center justify-center mb-2 text-gray-400 text-xs">QR Code</div>
-          <div class="text-xs font-medium">醫管局智友站</div>
-        </div>
-      </div>
-      <p class="text-xs text-gray-400 text-center mt-4">＊ QR Code 請參考原始文件</p>
-    </div>
-  </section>
+  </div>
+
 </main>
 
-<!-- Footer -->
-<footer class="bg-gradient-to-r from-pink-600 to-rose-500 text-white py-6 mt-12">
-  <div class="max-w-6xl mx-auto px-4 text-center">
-    <p class="text-sm">💗 為長者及照顧者提供全面社區支援資訊</p>
-    <p class="text-xs text-pink-100 mt-2">資料僅供參考 · 詳情請致電各機構查詢</p>
-  </div>
-</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-// Data
-const data = {
-  district: [
-    { name: '南區地區康健中心主中心', org: '香港仔坊會', addr: '黃竹坑香葉道 41 號嘉尚匯 2 樓', tel: '2205 3688' },
-    { name: '南區長者地區中心', org: '香港仔坊會', addr: '香港仔大道 180B 號二樓', tel: '3550 5520' },
-    { name: '南區長者地區中心', org: '香港仔坊會', addr: '香港華富邨華美樓地下 419-420 及 428-432 號', tel: '2554 4002 / 2554 4062' },
-    { name: '南區長者地區中心', org: '香港仔坊會', addr: '黃竹坑深灣道 11 號南濤閣地下 5-6 號及 1 樓 2-3 號', tel: '2553 6333' },
-    { name: '中西區長者地區中心', org: '聖雅各福群會', addr: '上環皇后大道中 345 號上環市政大廈 11 樓', tel: '2805 1253' },
-    { name: '西環長者綜合服務中心', org: '香港聖公會福利協會', addr: '西環山道 28 號曉山閣地下 A-E 室', tel: '2818 3717' },
-    { name: '西環長者綜合服務中心', org: '香港聖公會福利協會', addr: '西環山道 38-40 號佳景閣地下 4-6 室', tel: '2818 5056' },
-    { name: '明愛中區長者中心', org: '香港明愛', addr: '中環堅道 2 號明愛大廈 2 樓 231 室', tel: '3589 2501' }
-  ],
-  neighbour: [
-    { name: '林應和長者鄰舍中心', org: '香港仔坊會', addr: '香港鴨脷洲悅海街 1 號悅海華庭地下', tel: '2870 3970' },
-    { name: '方王換娣長者鄰舍中心', org: '香港仔坊會', addr: '香港香港仔華貴邨華貴社區中心地下', tel: '2550 5887' },
-    { name: '萬隸甫夫人長者鄰舍中心', org: '中華基督教禮賢會', addr: '香港香港仔石排灣邨碧輝樓地下及平台', tel: '2553 8318' },
-    { name: '西園長者中心', org: '義務工作發展局', addr: '香港西營盤第一街 82 號西園地下', tel: '2546 4212' },
-    { name: '松鶴老人中心', org: '香港西區婦女福利會', addr: '香港上環必列者士街 60 號二樓', tel: '2546 5471' },
-    { name: '聖馬太長者鄰舍中心', org: '香港聖公會福利協會', addr: '香港上環德輔道西 38 號 2 字樓 B 室', tel: '2548 2555' },
-    { name: '聖路加福群會長者鄰舍中心', org: '香港聖公會福利協會', addr: '香港堅尼地城龍華街 20 號觀龍樓二座地下 B 室', tel: '2817 2981' },
-    { name: '雅研社鄰里康齡中心', org: '鄰舍輔導會', addr: '香港堅尼地城海旁 26 號龍翔花園 1 樓', tel: '2819 8727' },
-    { name: '西環松柏中心', org: '香港基督教女青年會', addr: '西環加惠民道西環邨房屋辦事處二樓', tel: '2818 9722' },
-    { name: '明愛香港仔長者中心', org: '香港明愛', addr: '香港香港仔田灣邨田澤樓地下 6-10 號', tel: '2538 7777' },
-    { name: '華富長者中心', org: '救世軍', addr: '香港華富邨華建樓 301-310 室', tel: '2550 9971' },
-    { name: '王少清老人中心', org: '東華三院', addr: '香港香港仔華富邨華昌樓地下 126-129 室', tel: '2550 6933' },
-    { name: '利福長者鄰舍中心', org: '基督教宣道會', addr: '香港鴨脷洲邨利寧樓地下 29 號', tel: '2552 1115' },
-    { name: '利東鄰里康齡中心', org: '鄰舍輔導會', addr: '香港鴨脷洲利東邨東昇樓 309-316 室', tel: '2874 6311' },
-    { name: '何郭佩珍耆康中心', org: '香港婦女基金會', addr: '香港中環擺花街 46 號中晶商業大廈 2 字樓', tel: '2543 3890' },
-    { name: '明愛中區長者中心', org: '香港明愛', addr: '香港中環堅道 2 號明愛大廈 231 室', tel: '3589 2501' }
-  ],
-  dementia: [
-    { name: '中西區長者地區中心', org: '聖雅各福群會 - 智友醫社同行計劃', addr: '上環皇后大道中 345 號上環市政大廈 11 樓', tel: '2805 1250' },
-    { name: '賽馬會「腦唔老」項目', org: '聖雅各福群會 - 西區辦事處', addr: '西環德輔道西 466 號 2 樓', tel: '2816 9020', extra: 'WhatsApp: 4664 9799' },
-    { name: '南區長者地區中心', org: '香港仔坊會 - 智友醫社同行計劃', addr: '香港仔深灣道 3 號南濤閣地下 1-3 室', tel: '2553 6333' },
-    { name: '賽馬會黃志強長者地區中心', org: '香港仔坊會', addr: '香港仔大道 180 號 B 2 樓', tel: '3550 5520' }
-  ],
-  home1: [
-    { name: '香港家庭福利會 (中西區)', org: '綜合家居照顧', addr: '香港皇后大道中 345 號上環市政大廈 11 樓', tel: '2805 1256' },
-    { name: '香港家庭福利會 (中西區)', org: '綜合家居照顧', addr: '香港皇后大道中 181-183 號新紀元廣場低座地下', tel: '2546 3332 / 2167 8987' },
-    { name: '香港家庭福利會 (中西區)', org: '綜合家居照顧', addr: '香港西營盤第一街 80 號 A 西園', tel: '—' },
-    { name: '香港聖公會 (中西區)', org: '綜合家居照顧', addr: '香港西環山道 28 號曉山閣地下 A-E 室', tel: '2818 3717' },
-    { name: '香港仔街坊會 (南區)', org: '綜合家居照顧', addr: '香港仔大道 180B 號二樓', tel: '3550 5513' },
-    { name: '香港仔街坊會 (南區)', org: '綜合家居照顧', addr: '香港仔深灣道 3 號南濤閣地下 1-3 室', tel: '2553 9499' },
-    { name: '香港明愛 (南區)', org: '綜合家居照顧', addr: '香港仔華富邨華泰樓 3 樓 312-317 室', tel: '2551 2481' },
-    { name: '香港明愛 (南區)', org: '綜合家居照顧', addr: '香港香港仔田灣邨田澤樓地下 1,2 及 5 號', tel: '2550 7620' }
-  ],
-  home2: [
-    { name: '聖雅各福群會 (中西區)', org: '改善家居及社區照顧', addr: '香港西環干諾道西 188 號香港商業中心 7 樓 13AB', tel: '2817 7839' },
-    { name: '香港仔街坊會 (南區)', org: '改善家居及社區照顧', addr: '香港仔石排灣邨停車場低層二樓 1 號', tel: '2555 3466' },
-    { name: '香港家庭福利會 (離島)', org: '改善家居及社區照顧', addr: '坪洲金坪邨金坪樓地下 N10B 室', tel: '2559 7773' },
-    { name: '香港家庭福利會 (離島)', org: '改善家居及社區照顧', addr: '長洲長貴邨長慶樓', tel: '2986 8616' },
-    { name: '香港家庭福利會 (離島)', org: '改善家居及社區照顧', addr: '南丫島榕樹灣大街 31 號 A 地下 B 室', tel: '2982 4411' }
-  ],
-  transport: [
-    { name: '星群的士', tel: '3700-6500' },
-    { name: 'BIG BOSS', tel: '6123-2882' },
-    { name: '鑽的', tel: '2760-8771' },
-    { name: 'Amigo', tel: '5588-2929' },
-    { name: '大黃蜂', tel: '5121-8888' },
-    { name: 'JOIE 樂行', tel: '3850-1111' },
-    { name: '愛心小巴', tel: '2818-7400' },
-    { name: '冠忠無障礙', tel: '2979-8777' },
-    { name: '易達巴士', tel: '2348-0608' },
-    { name: '易達轎車', tel: '8106-6616' }
-  ]
-};
+// ====== STATE ======
+let records = JSON.parse(sessionStorage.getItem('familyRecords') || '[]');
+let barChart = null, pieChart = null;
 
-// Card template
-function createCard(item) {
-  const telDigits = item.tel.replace(/[^\d]/g, '').substring(0,8);
-  return `
-    <div class="card-data bg-white rounded-2xl p-5 shadow-md card-hover border-l-4 border-pink-400">
-      <div class="flex items-start justify-between gap-2 mb-2">
-        <h3 class="font-bold text-gray-800 text-base leading-tight">${item.name}</h3>
-      </div>
-      <p class="text-xs text-rose-500 font-medium mb-3">🏢 ${item.org}</p>
-      <div class="flex items-start gap-2 text-sm text-gray-600 mb-3">
-        <span class="text-pink-400 mt-0.5">📍</span>
-        <span class="flex-1 leading-relaxed">${item.addr}</span>
-      </div>
-      <a href="tel:${telDigits}" class="phone-link flex items-center justify-between bg-gradient-to-r from-pink-50 to-rose-50 hover:from-pink-100 hover:to-rose-100 px-3 py-2 rounded-lg transition">
-        <span class="text-xs text-gray-500">☎️ 致電</span>
-        <span class="font-mono font-bold text-pink-600 text-sm">${item.tel}</span>
-      </a>
-      ${item.extra ? `<p class="text-xs text-green-600 mt-2 font-medium">💬 ${item.extra}</p>` : ''}
-    </div>
-  `;
+// Save state (sessionStorage only as localStorage blocked in sandbox)
+function saveData() {
+  try { sessionStorage.setItem('familyRecords', JSON.stringify(records)); } catch(e) {}
 }
 
-// Render
-['district','neighbour','dementia','home1','home2'].forEach(key => {
-  const target = document.getElementById('grid-' + key);
-  if (target) target.innerHTML = data[key].map(createCard).join('');
-});
-
-// Transport
-document.getElementById('transport').innerHTML = data.transport.map(t => `
-  <a href="tel:${t.tel.replace(/-/g,'')}" class="phone-link p-3 bg-pink-50 rounded-lg hover:bg-pink-100 transition text-center block">
-    <div class="font-medium text-gray-700 text-xs sm:text-sm">${t.name}</div>
-    <div class="font-mono font-bold text-pink-600 mt-1 text-xs sm:text-sm">${t.tel}</div>
-  </a>
-`).join('');
-
-// Search
-document.getElementById('searchInput').addEventListener('input', function(e) {
-  const q = e.target.value.toLowerCase();
-  document.querySelectorAll('.card-data').forEach(card => {
-    const text = card.textContent.toLowerCase();
-    card.classList.toggle('hide', q && !text.includes(q));
+// ====== THEME TOGGLE ======
+(function(){
+  const btn = document.querySelector('[data-theme-toggle]');
+  const root = document.documentElement;
+  let theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  root.setAttribute('data-theme', theme);
+  if(btn) btn.addEventListener('click', () => {
+    theme = theme === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', theme);
+    btn.innerHTML = theme === 'dark'
+      ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+      : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
   });
-});
+})();
 
-// Filter
-function filterSection(section) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-  document.querySelectorAll('section[data-section]').forEach(sec => {
-    if (section === 'all' || sec.dataset.section === section) {
-      sec.classList.remove('hide');
-    } else {
-      sec.classList.add('hide');
+// ====== NAVIGATION ======
+function switchPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const tabs = document.querySelectorAll('.nav-tab');
+  const order = ['dashboard','add','records','monthly'];
+  tabs[order.indexOf(id)].classList.add('active');
+  if(id === 'dashboard') renderDashboard();
+  if(id === 'records') renderRecords();
+  if(id === 'monthly') renderMonthly();
+}
+
+// ====== HELPERS ======
+function fmt(n) { return 'HK$' + Number(n).toLocaleString('zh-HK', {minimumFractionDigits:0, maximumFractionDigits:0}); }
+function getMonth(date) { return date.slice(0,7); }
+function allMonths() {
+  const set = new Set(records.map(r => getMonth(r.date)));
+  return [...set].sort();
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ====== POPULATE MONTH SELECTOR ======
+function populateMonthSelectors() {
+  const months = allMonths();
+  const now = new Date().toISOString().slice(0,7);
+  const current = months.includes(now) ? now : (months[months.length-1] || now);
+
+  // Dashboard month select
+  const dm = document.getElementById('dash-month');
+  const prev = dm.value;
+  dm.innerHTML = '';
+  months.forEach(m => {
+    const o = document.createElement('option');
+    o.value = m; o.textContent = m;
+    if(m === (prev || current)) o.selected = true;
+    dm.appendChild(o);
+  });
+  if(!dm.value && months.length) dm.value = current;
+
+  // Records month filter
+  const rm = document.getElementById('filter-month');
+  const rprev = rm.value;
+  rm.innerHTML = '<option value="">所有月份</option>';
+  months.forEach(m => {
+    const o = document.createElement('option');
+    o.value = m; o.textContent = m;
+    if(m === rprev) o.selected = true;
+    rm.appendChild(o);
+  });
+}
+
+// ====== DASHBOARD ======
+function renderDashboard() {
+  populateMonthSelectors();
+  const month = document.getElementById('dash-month').value;
+  const mRecords = records.filter(r => getMonth(r.date) === month);
+
+  // KPI
+  const totalInc = mRecords.filter(r=>r.type==='收入').reduce((s,r)=>s+r.amount,0);
+  const totalExp = mRecords.filter(r=>r.type==='支出').reduce((s,r)=>s+r.amount,0);
+  const net = totalInc - totalExp;
+  const kpis = [
+    { label:'本月總收入', value: totalInc, cls:'positive', badge: null },
+    { label:'本月總支出', value: totalExp, cls:'negative', badge: null },
+    { label:'全家總結餘', value: net, cls: net>=0?'positive':'negative',
+      badge: net>0?{txt:'有盈餘',cls:'surplus'}:net<0?{txt:'超支',cls:'deficit'}:{txt:'收支平衡',cls:'balanced'} }
+  ];
+  document.getElementById('kpi-grid').innerHTML = kpis.map(k=>`
+    <div class="kpi-card">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value ${k.cls}">${fmt(k.value)}</div>
+      ${k.badge?`<span class="kpi-badge ${k.badge.cls}">${k.badge.txt}</span>`:''}
+    </div>
+  `).join('');
+
+  // Member cards
+  const members = [
+    {key:'我',name:'我',initials:'我',cls:'avatar-me'},
+    {key:'先生',name:'先生',initials:'夫',cls:'avatar-husband'},
+    {key:'家庭',name:'家庭共用',initials:'家',cls:'avatar-family'},
+  ];
+  document.getElementById('member-cards').innerHTML = members.map(m=>{
+    const mr = mRecords.filter(r=>r.member===m.key);
+    const inc = mr.filter(r=>r.type==='收入').reduce((s,r)=>s+r.amount,0);
+    const exp = mr.filter(r=>r.type==='支出').reduce((s,r)=>s+r.amount,0);
+    const bal = inc - exp;
+    const balCls = bal>=0?'pos':'neg';
+    return `<div class="member-card">
+      <div class="member-header">
+        <div class="member-avatar ${m.cls}">${m.initials}</div>
+        <div><div class="member-name">${m.name}</div><div class="member-subtitle">${month} 收支概況</div></div>
+      </div>
+      <div class="member-stats">
+        <div class="stat-item"><div class="stat-label">收入</div><div class="stat-value income">${fmt(inc)}</div></div>
+        <div class="stat-item"><div class="stat-label">支出</div><div class="stat-value expense">${fmt(exp)}</div></div>
+        <div class="stat-item"><div class="stat-label">結餘</div><div class="stat-value balance ${balCls}">${fmt(bal)}</div></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Charts
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)';
+  const textColor = isDark ? '#cdccca' : '#7a7974';
+
+  // Bar chart
+  if(barChart) barChart.destroy();
+  const barCtx = document.getElementById('chart-bar').getContext('2d');
+  const barLabels = ['我','先生','家庭'];
+  const incData = barLabels.map(m=>mRecords.filter(r=>r.member===m&&r.type==='收入').reduce((s,r)=>s+r.amount,0));
+  const expData = barLabels.map(m=>mRecords.filter(r=>r.member===m&&r.type==='支出').reduce((s,r)=>s+r.amount,0));
+  barChart = new Chart(barCtx, {
+    type:'bar',
+    data: {
+      labels: barLabels,
+      datasets: [
+        {label:'收入', data:incData, backgroundColor:'rgba(67,122,34,0.75)', borderRadius:6},
+        {label:'支出', data:expData, backgroundColor:'rgba(161,53,68,0.75)', borderRadius:6}
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{labels:{color:textColor, font:{size:12, family:"'Noto Sans HK', sans-serif"}}} },
+      scales:{
+        x:{ticks:{color:textColor}, grid:{color:gridColor}},
+        y:{ticks:{color:textColor, callback:v=>'$'+v.toLocaleString()}, grid:{color:gridColor}}
+      }
+    }
+  });
+
+  // Pie chart (expense by category)
+  if(pieChart) pieChart.destroy();
+  const pieCtx = document.getElementById('chart-pie').getContext('2d');
+  const expByCat = {};
+  mRecords.filter(r=>r.type==='支出').forEach(r=>{expByCat[r.cat]=(expByCat[r.cat]||0)+r.amount;});
+  const catKeys = Object.keys(expByCat).sort((a,b)=>expByCat[b]-expByCat[a]);
+  const pieColors = ['#01696f','#437a22','#d19900','#964219','#a13544','#006494','#7a39bb','#4f98a3','#6daa45','#e8af34'];
+  pieChart = new Chart(pieCtx, {
+    type:'doughnut',
+    data:{
+      labels: catKeys.length ? catKeys : ['無支出記錄'],
+      datasets:[{data: catKeys.length ? catKeys.map(k=>expByCat[k]) : [1], backgroundColor: catKeys.length ? pieColors.slice(0,catKeys.length) : ['#d4d1ca'], borderWidth:2, borderColor: isDark?'#1c1b19':'#f9f8f5'}]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'right', labels:{color:textColor, font:{size:11, family:"'Noto Sans HK', sans-serif"}, boxWidth:14, padding:10}}},
+      cutout:'60%'
     }
   });
 }
+
+// ====== ADD RECORD ======
+function addRecord() {
+  const date = document.getElementById('f-date').value;
+  const member = document.getElementById('f-member').value;
+  const type = document.getElementById('f-type').value;
+  const cat = document.getElementById('f-cat').value;
+  const desc = document.getElementById('f-desc').value.trim();
+  const amount = parseFloat(document.getElementById('f-amount').value);
+  if(!date) { showToast('⚠️ 請填日期'); return; }
+  if(!amount || amount <= 0) { showToast('⚠️ 請填有效金額'); return; }
+  records.push({ id: Date.now(), date, member, type, cat, desc, amount });
+  records.sort((a,b)=>b.date.localeCompare(a.date));
+  saveData();
+  showToast('✅ 記錄已儲存！');
+  resetForm();
+  populateMonthSelectors();
+}
+function resetForm() {
+  document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
+  document.getElementById('f-desc').value = '';
+  document.getElementById('f-amount').value = '';
+}
+
+// ====== RECORDS PAGE ======
+function renderRecords() {
+  populateMonthSelectors();
+  const filterMonth = document.getElementById('filter-month').value;
+  const filterMember = document.getElementById('filter-member').value;
+  const filterType = document.getElementById('filter-type').value;
+  let filtered = records.filter(r => {
+    if(filterMonth && getMonth(r.date) !== filterMonth) return false;
+    if(filterMember && r.member !== filterMember) return false;
+    if(filterType && r.type !== filterType) return false;
+    return true;
+  });
+  const tbody = document.getElementById('records-body');
+  if(!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><p>暫無記錄，前往「新增記錄」加入數據</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filtered.map(r=>`
+    <tr>
+      <td>${r.date}</td>
+      <td><span class="badge badge-${r.member==='我'?'me':r.member==='先生'?'husband':'family'}">${r.member}</span></td>
+      <td><span class="badge ${r.type==='收入'?'badge-income':'badge-expense'}">${r.type}</span></td>
+      <td>${r.cat}</td>
+      <td style="color:var(--color-text-muted)">${r.desc||'—'}</td>
+      <td class="${r.type==='收入'?'amount-income':'amount-expense'}">${r.type==='收入'?'+':'−'}${fmt(r.amount)}</td>
+      <td><button class="btn btn-danger" onclick="deleteRecord(${r.id})" aria-label="刪除">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+function deleteRecord(id) {
+  records = records.filter(r=>r.id!==id);
+  saveData();
+  renderRecords();
+  showToast('🗑 記錄已刪除');
+}
+
+// ====== MONTHLY SUMMARY ======
+function renderMonthly() {
+  const months = allMonths();
+  const tbody = document.getElementById('monthly-body');
+  if(!months.length) {
+    tbody.innerHTML = `<tr><td colspan="12"><div class="empty-state"><p>未有記錄，請先新增數據</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = months.map(m=>{
+    const mr = records.filter(r=>getMonth(r.date)===m);
+    const s = (member, type) => mr.filter(r=>r.member===member&&r.type===type).reduce((s,r)=>s+r.amount,0);
+    const meInc=s('我','收入'), meExp=s('我','支出'), meBal=meInc-meExp;
+    const huInc=s('先生','收入'), huExp=s('先生','支出'), huBal=huInc-huExp;
+    const faInc=s('家庭','收入'), faExp=s('家庭','支出'), faBal=faInc-faExp;
+    const total = meBal+huBal+faBal;
+    const statusTxt = total>0?'✅ 有盈餘':total<0?'⚠️ 超支':'⚖️ 收支平衡';
+    const statusStyle = total>0?'color:var(--color-success);font-weight:600':total<0?'color:var(--color-error);font-weight:600':'color:var(--color-gold);font-weight:600';
+    const cell = (v,cls) => `<td class="${v>=0?'balance-positive':'balance-negative'}">${fmt(v)}</td>`;
+    return `<tr>
+      <td style="font-weight:600">${m}</td>
+      <td class="amount-income">${fmt(meInc)}</td><td class="amount-expense">${fmt(meExp)}</td>${cell(meBal)}
+      <td class="amount-income">${fmt(huInc)}</td><td class="amount-expense">${fmt(huExp)}</td>${cell(huBal)}
+      <td class="amount-income">${fmt(faInc)}</td><td class="amount-expense">${fmt(faExp)}</td>${cell(faBal)}
+      <td class="${total>=0?'balance-positive':'balance-negative'}" style="font-weight:700">${fmt(total)}</td>
+      <td style="${statusStyle}">${statusTxt}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ====== SAMPLE DATA ======
+function loadSampleData() {
+  const today = new Date();
+  const m = today.toISOString().slice(0,7);
+  const prev = new Date(today.getFullYear(), today.getMonth()-1, 1).toISOString().slice(0,7);
+  const samples = [
+    {date:`${m}-01`,member:'我',type:'收入',cat:'人工',desc:'6月人工',amount:28000},
+    {date:`${m}-01`,member:'先生',type:'收入',cat:'人工',desc:'6月人工',amount:35000},
+    {date:`${m}-03`,member:'家庭',type:'支出',cat:'租金',desc:'6月租金',amount:16000},
+    {date:`${m}-04`,member:'家庭',type:'支出',cat:'水電煤',desc:'',amount:1200},
+    {date:`${m}-05`,member:'我',type:'支出',cat:'交通',desc:'',amount:900},
+    {date:`${m}-06`,member:'先生',type:'支出',cat:'外出用膳',desc:'',amount:2000},
+    {date:`${m}-08`,member:'家庭',type:'支出',cat:'買餸',desc:'超市',amount:3500},
+    {date:`${m}-10`,member:'我',type:'支出',cat:'醫療',desc:'門診',amount:600},
+    {date:`${m}-12`,member:'先生',type:'支出',cat:'交通',desc:'',amount:800},
+    {date:`${m}-15`,member:'家庭',type:'支出',cat:'娛樂',desc:'電影',amount:500},
+    {date:`${m}-20`,member:'我',type:'支出',cat:'購物',desc:'',amount:1200},
+    {date:`${prev}-01`,member:'我',type:'收入',cat:'人工',desc:'5月人工',amount:28000},
+    {date:`${prev}-01`,member:'先生',type:'收入',cat:'人工',desc:'5月人工',amount:35000},
+    {date:`${prev}-03`,member:'家庭',type:'支出',cat:'租金',desc:'5月租金',amount:16000},
+    {date:`${prev}-05`,member:'家庭',type:'支出',cat:'水電煤',desc:'',amount:1100},
+    {date:`${prev}-07`,member:'我',type:'支出',cat:'交通',desc:'',amount:850},
+    {date:`${prev}-10`,member:'先生',type:'支出',cat:'外出用膳',desc:'',amount:1800},
+  ];
+  samples.forEach(s => records.push({id:Date.now()+Math.random(),  ...s}));
+  records.sort((a,b)=>b.date.localeCompare(a.date));
+  saveData();
+  showToast('📦 示範數據已載入！');
+  populateMonthSelectors();
+  renderDashboard();
+}
+
+// ====== INIT ======
+document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
+populateMonthSelectors();
+renderDashboard();
 </script>
 </body>
 </html>
